@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.ucsd.CSE232B.parsers.XpathGrammarLexer;
 import edu.ucsd.CSE232B.parsers.XpathGrammarParser;
@@ -30,9 +31,10 @@ public class Main {
         final XpathModifiedVisitor visitor = new XpathModifiedVisitor();
 
         //TODO : For each query in queries file, run this
-        final ArrayList<Node> nodes = visitor.visit(tree);
+        final List<Node> nodes = visitor.visit(tree);
+        System.out.println(nodes.size());
         for (Node n : nodes) {
-            System.out.println(n.getTextContent());
+            System.out.println(n.getTextContent() + '\n');
         }
     }
 }
