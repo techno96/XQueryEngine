@@ -95,7 +95,16 @@ stringConstant :  STRING;
 
 STRING
 :
-   '"' [A-Za-z0-9./_]* '"'
+   '"'
+   (
+      ESCAPE
+      | ~["\\]
+   )* '"'
+   | '\''
+   (
+      ESCAPE
+      | ~['\\]
+   )* '\''
 ;
 
 ESCAPE
