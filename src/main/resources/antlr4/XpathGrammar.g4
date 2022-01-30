@@ -36,8 +36,8 @@ f
     : rp                            #relpath
      | rp EQUAL stringConstant      #stringequilizer_f
      | rp EQUAL rp                  #equal_f
-     | rp EQ rp                     #eq_f
-     | rp DBLEQUAL rp               #douequal_f
+     | rp EQ rp                     #equal_f
+     | rp DBLEQUAL rp               #is_f
      | rp IS rp                     #is_f
      | LPR f RPR                    #paren_f
      | f AND f                      #and_f
