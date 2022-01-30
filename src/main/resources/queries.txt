@@ -1,1 +1,1 @@
-doc("j_caesar.xml")//(ACT, PERSONAE)/TITLE
+doc("j_caesar.xml")//ACT[SCENE [SPEECH/SPEAKER/text() = "CAESAR" and SPEECH/SPEAKER/text() = "BRUTUS"]]

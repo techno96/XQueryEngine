@@ -23,11 +23,11 @@ rp
     | DOT                       #present_rp
     | DOUBLEDOT                 #parent_rp
     | TEXTFUNTION               #text_rp
-    | AT attName               #attribute_rp
+    | AT attName                #attribute_rp
     | LPR rp RPR                #paren_rp
     | rp SINGLESLASH rp         #child_rp
     | rp DOUBLEBACKSLASH rp     #descen_rp
-    | rp LSQREPR f RSQREPR              #filer_rp
+    | rp LSQREPR f RSQREPR      #filter_rp
     | rp COMMA rp               #comma_rp
     ;
 
