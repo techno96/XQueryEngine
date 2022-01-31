@@ -163,30 +163,15 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
     public List<Node> visitFilter_rp(XpathGrammarParser.Filter_rpContext ctx) {
         List<Node> rpResult = visit(ctx.rp());
         List<Node> resultList = new ArrayList<>();
-        System.out.println(currentNodes);
-        currentNodes = visit(ctx.f());
         for (Node n : rpResult) {
             List<Node> singleList = new ArrayList<>();
             singleList.add(n);
-            List<Node> descendants = getDescendants(singleList);
-            for (Node n1 : currentNodes) {
-                if (descendants.contains(n1)) {
-                    if (!resultList.contains(n)) {
-                        resultList.add(n);
-                        break;
-                    }
-                }
+            currentNodes = singleList;
+            List<Node> f_result = visit(ctx.f());
+            if (!f_result.isEmpty()) {
+                resultList.add(n);
             }
         }
-        //double check this
-//        List<Node> resultList = new ArrayList<>();
-//        for (Node n : currentNodes) {
-//            Node ownerNode = n.getParentNode().getParentNode();
-//            if (!resultList.contains(ownerNode)) {
-//                resultList.add(ownerNode);
-//            }
-//
-//        }
         return resultList;
     }
 
@@ -227,14 +212,16 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
 
     @Override
     public List<Node> visitAnd_f(XpathGrammarParser.And_fContext ctx) {
-//        List<Node> currentList = currentNodes;
-        List<Node> firstList = visit(ctx.f(0));
-//        currentNodes = currentList;
-        List<Node> secondList = visit(ctx.f(1));
-//        currentNodes = currentList;
+        List<Node> currentList = currentNodes;
         List<Node> resultList = new ArrayList<>();
-        for (Node n : firstList) {
-            if (secondList.contains(n)) {
+        for (Node n : currentList) {
+            List<Node> singleList = new ArrayList<>();
+            singleList.add(n);
+            currentNodes = singleList;
+            List<Node> firstList = visit(ctx.f(0));
+            currentNodes = singleList;
+            List<Node> secondList = visit(ctx.f(1));
+            if (!firstList.isEmpty() && !secondList.isEmpty()) {
                 resultList.add(n);
             }
         }
@@ -258,20 +245,15 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
     @Override
     public List<Node> visitNot_f(XpathGrammarParser.Not_fContext ctx) {
         List<Node> firstList = currentNodes;
-        List<Node> secondList = visit(ctx.f());
         List<Node> resultList = new ArrayList<>();
         for (Node n : firstList) {
             List<Node> singleList = new ArrayList<>();
             singleList.add(n);
-            List<Node> descendants = getDescendants(singleList);
-            resultList.add(n);
-            for (Node n1 : secondList) {
-                if (descendants.contains(n1)) {
-                    resultList.remove(n);
-                    break;
-                }
+            currentNodes = singleList;
+            List<Node> secondList = visit(ctx.f());
+            if (secondList.isEmpty()) {
+                resultList.add(n);
             }
-            
         }
         return resultList;
     }
