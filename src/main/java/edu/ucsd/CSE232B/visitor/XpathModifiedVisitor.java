@@ -13,6 +13,7 @@ import java.util.*;
 
 public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
     List<Node> currentNodes = new ArrayList<>();
+    public Document doc = null;
 
     @Override
     public List<Node> visitChild(XpathGrammarParser.ChildContext ctx) {
@@ -52,6 +53,7 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
         }
         List<Node> resultList = new ArrayList<>();
         resultList.add(doc);
+        this.doc = doc;
         currentNodes = resultList;
         return resultList;
     }
@@ -230,12 +232,16 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
 
     @Override
     public List<Node> visitOr_f(XpathGrammarParser.Or_fContext ctx) {
-        List<Node> firstList = visit(ctx.f(0));
-        List<Node> secondList = visit(ctx.f(1));
+        List<Node> currentList = currentNodes;
         List<Node> resultList = new ArrayList<>();
-        resultList.addAll(firstList);
-        for (Node n : secondList) {
-            if (!resultList.contains(n)) {
+        for (Node n : currentList) {
+            List<Node> singleList = new ArrayList<>();
+            singleList.add(n);
+            currentNodes = singleList;
+            List<Node> firstList = visit(ctx.f(0));
+            currentNodes = singleList;
+            List<Node> secondList = visit(ctx.f(1));
+            if (!firstList.isEmpty() || !secondList.isEmpty()) {
                 resultList.add(n);
             }
         }
