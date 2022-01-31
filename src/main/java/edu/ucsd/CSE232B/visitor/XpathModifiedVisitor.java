@@ -162,21 +162,37 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
     @Override
     public List<Node> visitFilter_rp(XpathGrammarParser.Filter_rpContext ctx) {
         List<Node> rpResult = visit(ctx.rp());
-        currentNodes = visit(ctx.f());
-        //double check this
         List<Node> resultList = new ArrayList<>();
-        for (Node n : currentNodes) {
-            Node ownerNode = n.getParentNode().getParentNode();
-            if (!resultList.contains(ownerNode)) {
-                resultList.add(ownerNode);
+        System.out.println(currentNodes);
+        currentNodes = visit(ctx.f());
+        for (Node n : rpResult) {
+            List<Node> singleList = new ArrayList<>();
+            singleList.add(n);
+            List<Node> descendants = getDescendants(singleList);
+            for (Node n1 : currentNodes) {
+                if (descendants.contains(n1)) {
+                    if (!resultList.contains(n)) {
+                        resultList.add(n);
+                        break;
+                    }
+                }
             }
-
         }
+        //double check this
+//        List<Node> resultList = new ArrayList<>();
+//        for (Node n : currentNodes) {
+//            Node ownerNode = n.getParentNode().getParentNode();
+//            if (!resultList.contains(ownerNode)) {
+//                resultList.add(ownerNode);
+//            }
+//
+//        }
         return resultList;
     }
 
     @Override
     public List<Node> visitStringequilizer_f(XpathGrammarParser.Stringequilizer_fContext ctx) {
+        //make a copy of current nodes
         List<Node> rpResult = visit(ctx.rp());
         //Handle terminal node
         XpathGrammarParser.StringConstantContext strCtx = ctx.stringConstant();
@@ -204,22 +220,24 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
 
     @Override
     public List<Node> visitChild_rp(XpathGrammarParser.Child_rpContext ctx) {
-        visit(ctx.rp(0));
+        currentNodes = visit(ctx.rp(0));
         currentNodes = visit(ctx.rp(1));
         return currentNodes;
     }
 
     @Override
     public List<Node> visitAnd_f(XpathGrammarParser.And_fContext ctx) {
+//        List<Node> currentList = currentNodes;
         List<Node> firstList = visit(ctx.f(0));
+//        currentNodes = currentList;
         List<Node> secondList = visit(ctx.f(1));
+//        currentNodes = currentList;
         List<Node> resultList = new ArrayList<>();
         for (Node n : firstList) {
             if (secondList.contains(n)) {
                 resultList.add(n);
             }
         }
-        currentNodes = resultList;
         return resultList;
     }
 
@@ -234,7 +252,6 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
                 resultList.add(n);
             }
         }
-        currentNodes = resultList;
         return resultList;
     }
 
@@ -244,18 +261,26 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
         List<Node> secondList = visit(ctx.f());
         List<Node> resultList = new ArrayList<>();
         for (Node n : firstList) {
-            if (!secondList.contains(n)) {
-                resultList.add(n);
+            List<Node> singleList = new ArrayList<>();
+            singleList.add(n);
+            List<Node> descendants = getDescendants(singleList);
+            resultList.add(n);
+            for (Node n1 : secondList) {
+                if (descendants.contains(n1)) {
+                    resultList.remove(n);
+                    break;
+                }
             }
+            
         }
-        currentNodes = resultList;
         return resultList;
     }
 
     @Override
     public List<Node> visitRelpath(XpathGrammarParser.RelpathContext ctx) {
+        List<Node> currentList = currentNodes;
         List<Node> resultList = visit(ctx.rp());
-        currentNodes = resultList;
+        currentNodes = currentList;
         return resultList;
     }
 
