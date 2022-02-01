@@ -29,7 +29,7 @@ public class Main {
         final ANTLRInputStream input;
         try {
             //TODO : Replace with FileInputStream
-            input = new ANTLRInputStream(new FileInputStream("src/main/resources/queries.txt"));
+            input = new ANTLRInputStream(new FileInputStream(args[0]));
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -58,7 +58,7 @@ public class Main {
         }
 
         List<Node> result = createElement(visitor.doc, "result", nodes);
-        writeNodesToFile(outputDoc, result, "output/XPath.xml");
+        writeNodesToFile(outputDoc, result, args[1]);
     }
 
     public static void writeNodesToFile(Document doc, List<Node> result, String filePath) {

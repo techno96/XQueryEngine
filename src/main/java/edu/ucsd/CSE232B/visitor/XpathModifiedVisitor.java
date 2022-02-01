@@ -273,24 +273,24 @@ public class XpathModifiedVisitor extends XpathGrammarBaseVisitor<List<Node>> {
     }
 
     public List<Node> getDescendants(List<Node> parents) {
-        List<Node> desc = new ArrayList<>();
+        List<Node> descendants = new ArrayList<>();
         for(Node n : parents) {
             if(n.getChildNodes().getLength() != 0) {
                 for(int j = 0; j < n.getChildNodes().getLength(); j++) {
-                    desc.addAll(getAllNodes(n.getChildNodes().item(j)));
+                    descendants.addAll(getAllChildNodes(n.getChildNodes().item(j)));
                 }
             }
         }
-        return desc;
+        return descendants;
     }
 
-    public List<Node> getAllNodes(Node n) {
-        List<Node> allNodes = new ArrayList<>();
-        for(int i = 0; i < n.getChildNodes().getLength(); i++) {
-            allNodes.addAll(getAllNodes(n.getChildNodes().item(i)));
+    public List<Node> getAllChildNodes(Node parent) {
+        List<Node> totalList = new ArrayList<>();
+        for(int i = 0; i < parent.getChildNodes().getLength(); i++) {
+            totalList.addAll(getAllChildNodes(parent.getChildNodes().item(i)));
         }
-        allNodes.add(n);
-        return allNodes;
+        totalList.add(parent);
+        return totalList;
     }
 
 
