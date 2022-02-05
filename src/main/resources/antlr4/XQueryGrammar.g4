@@ -1,6 +1,10 @@
 grammar XQueryGrammar;
 import XpathGrammar;
 
+@header {
+package edu.ucsd.CSE232B.parsers;
+}
+
 xq
 	: var													    # XQueryVariable
 	| StringConstant											# XQueryStringConstant
@@ -47,7 +51,21 @@ cond
 	| NOT cond 											            # XqCondNot
 	;
 
-StringConstant: '"'+[a-zA-Z0-9,.!?; ''""-]+'"';
+StringConstant: STRING;
+
+STRING
+:
+   '"'
+   (
+      ESCAPE
+      | ~["\\]
+   )* '"'
+   | '\''
+   (
+      ESCAPE
+      | ~['\\]
+   )* '\''
+;
 
 
 LPR : '(';
