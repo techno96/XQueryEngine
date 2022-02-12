@@ -1,21 +1,17 @@
 grammar XQueryGrammar;
 import XpathGrammar;
 
-@header {
-package edu.ucsd.CSE232B.parsers;
-}
-
 xq
-	: var													    # XQueryVariable
-	| StringConstant											# XQueryStringConstant
-	| ap														# XQueryAP
-	| LPR xq RPR												# XQueryWithParan
-	| xq COMMA xq 											    # XQuerycomma
-	| xq SINGLESLASH rp											# XqRp
-	| xq DOUBLEBACKSLASH rp 									# XqRpall
-	| '<' NAME '>' '{' xq '}' '<' '/' NAME '>'					# XqConstructor
-	| forClause letClause? whereClause? returnClause    		# FLWR
-	| letClause xq 												# XqLet
+	: var													                                            # XQueryVariable
+	| StringConstant											                                        # XQueryStringConstant
+	| ap														                                        # XQueryAP
+	| LPR xq RPR												                                        # XQueryWithParan
+	| xq COMMA xq 											                                            # XQuerycomma
+	| xq SINGLESLASH rp											                                        # XqRp
+	| xq DOUBLEBACKSLASH rp 									                                        # XqRpall
+	| ANGULARLB NAME ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH NAME ANGULARRB					# XqConstructor
+	| forClause letClause? whereClause? returnClause    		                                        # FLWR
+	| letClause xq 												                                        # XqLet
 	;
 
 var
@@ -70,6 +66,10 @@ STRING
 
 LPR : '(';
 RPR : ')';
+CURLYLB : '{';
+CURLYRB : '}';
+ANGULARLB : '<';
+ANGULARRB : '>';
 
 SINGLESLASH : '/';
 DOUBLEBACKSLASH : '//';
