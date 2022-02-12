@@ -48,6 +48,7 @@ cond
 	;
 
 StringConstant: STRING;
+NAME: STRING;
 
 STRING
 :
