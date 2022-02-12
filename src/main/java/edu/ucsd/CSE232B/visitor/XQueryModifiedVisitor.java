@@ -1,8 +1,7 @@
 package edu.ucsd.CSE232B.visitor;
 
+import edu.ucsd.CSE232B.parsers.XQueryGrammarBaseVisitor;
 import edu.ucsd.CSE232B.parsers.XQueryGrammarParser;
-import edu.ucsd.CSE232B.parsers.XQueryGrammarVisitor;
-import edu.ucsd.CSE232B.parsers.XpathGrammarParser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -14,19 +13,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class XQueryModifiedVisitor extends XQueryGrammarVisitor<List<Node>> {
+public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> {
 
     Document output = null;
     List<Node> currentNodes = new ArrayList<>();
     public Document doc = null;
 
     @Override
-    public List<Node> visitXQueryVariable(XQueryGrammarParser.XQueryVariableContext ctx) {
-
-    }
-
-    @Override
-    public List<Node> visitXqConstructor(XQueryGrammarParser.XqConstructorContext ctx) {
+    public List<Node> visitXQueryConstructor(XQueryGrammarParser.XQueryConstructorContext ctx) {
         final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = null;
         try {
@@ -55,18 +49,18 @@ public class XQueryModifiedVisitor extends XQueryGrammarVisitor<List<Node>> {
     }
 
     @Override
-    public List<Node> visitXQueryAP(XQueryGrammarParser.XQueryAPContext ctx) {
-        return visit(ctx.ap());
+    public List<Node> visitXQuerychild_rp(XQueryGrammarParser.XQuerychild_rpContext ctx) {
+        return visit(ctx.rp());
     }
 
     @Override
-    public List<Node> visitXqRp(XQueryGrammarParser.XqRpContext ctx) {
+    public List<Node> visitXQuerydescen_rp(XQueryGrammarParser.XQuerydescen_rpContext ctx) {
         currentNodes = visit(ctx.xq());
         return visit(ctx.rp());
     }
 
     @Override
-    public List<Node> visitXqCondOr(XQueryGrammarParser.XqCondOrContext ctx) {
+    public List<Node> visitXQueryOr(XQueryGrammarParser.XQueryOrContext ctx) {
         List<Node> left_xq = visit(ctx.cond(0));
         if (!left_xq.isEmpty()) {
             return left_xq;
@@ -79,6 +73,20 @@ public class XQueryModifiedVisitor extends XQueryGrammarVisitor<List<Node>> {
 
         return new ArrayList<>();
     }
+
+    @Override
+    public List<Node> visitXQueryAnd(XQueryGrammarParser.XQueryAndContext ctx) {
+        List<Node> left_cond = visit(ctx.cond(0));
+        List<Node> right_cond = visit(ctx.cond(1));
+        if (!left_cond.isEmpty() && !right_cond.isEmpty()) {
+            return left_cond;
+        }
+
+        return new ArrayList<>();
+    }
+
+
+    // XPath methods from here on
 
     @Override
     public List<Node> visitChild(XQueryGrammarParser.ChildContext ctx) {
