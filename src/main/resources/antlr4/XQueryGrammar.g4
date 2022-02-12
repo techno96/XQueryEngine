@@ -7,11 +7,11 @@ xq
 	| ap														                                        # XQueryAP
 	| LPR xq RPR												                                        # XQueryWithParan
 	| xq COMMA xq 											                                            # XQuerycomma
-	| xq SINGLESLASH rp											                                        # XqRp
-	| xq DOUBLEBACKSLASH rp 									                                        # XqRpall
-	| ANGULARLB NAME ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH NAME ANGULARRB					# XqConstructor
-	| forClause letClause? whereClause? returnClause    		                                        # FLWR
-	| letClause xq 												                                        # XqLet
+	| xq SINGLESLASH rp											                                        # XQuerychild_rp
+	| xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rpl
+	| ANGULARLB NAME ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH NAME ANGULARRB					# XQueryConstructor
+	| forClause letClause? whereClause? returnClause    		                                        # XQueryFLWR
+	| letClause xq 												                                        # XQueryLet
 	;
 
 var
@@ -35,16 +35,16 @@ returnClause
 	;
 
 cond
-	: xq EQUAL xq 											        # XqEqual
-	| xq EQ xq 											            # XqEqual
-	| xq DBLEQUAL xq 											    # XqIs
-	| xq IS xq 											            # XqIs
-	| 'empty' LPR xq RPR 		 							        # XqEmpty
-	| 'some' var 'in' xq (',' var 'in' xq)* 'satisfies' cond        # XqSome
-	| LPR cond RPR 											        # XqCondwithP
-	| cond AND cond 										        # XqCondAnd
-	| cond OR cond 										            # XqCondOr
-	| NOT cond 											            # XqCondNot
+	: xq EQUAL xq 											        # XQueryEqual
+	| xq EQ xq 											            # XQueryEqual
+	| xq DBLEQUAL xq 											    # XQueryIs
+	| xq IS xq 											            # XQueryIs
+	| 'empty' LPR xq RPR 		 							        # XQueryEmpty
+	| 'some' var 'in' xq (',' var 'in' xq)* 'satisfies' cond        # XQuerySome
+	| LPR cond RPR 											        # XQueryCondwithP
+	| cond AND cond 										        # XQueryCondAnd
+	| cond OR cond 										            # XQueryCondOr
+	| NOT cond 											            # XQueryCondNot
 	;
 
 StringConstant: STRING;
