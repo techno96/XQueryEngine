@@ -8,7 +8,7 @@ xq
 	| LPR xq RPR												                                        # XQueryWithParan
 	| xq COMMA xq 											                                            # XQuerycomma
 	| xq SINGLESLASH rp											                                        # XQuerychild_rp
-	| xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rpl
+	| xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rp
 	| ANGULARLB NAME ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH NAME ANGULARRB					# XQueryConstructor
 	| forClause letClause? whereClause? returnClause    		                                        # XQueryFLWR
 	| letClause xq 												                                        # XQueryLet
@@ -41,10 +41,10 @@ cond
 	| xq IS xq 											            # XQueryIs
 	| 'empty' LPR xq RPR 		 							        # XQueryEmpty
 	| 'some' var 'in' xq (',' var 'in' xq)* 'satisfies' cond        # XQuerySome
-	| LPR cond RPR 											        # XQueryCondwithP
-	| cond AND cond 										        # XQueryCondAnd
-	| cond OR cond 										            # XQueryCondOr
-	| NOT cond 											            # XQueryCondNot
+	| LPR cond RPR 											        # XQueryParen
+	| cond AND cond 										        # XQueryAnd
+	| cond OR cond 										            # XQueryOr
+	| NOT cond 											            # XQueryNot
 	;
 
 StringConstant: STRING;
