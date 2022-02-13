@@ -85,6 +85,73 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         return new ArrayList<>();
     }
 
+    @Override
+    public List<Node> visitXQueryNot(XQueryGrammarParser.XQueryNotContext ctx) {
+         List<Node> cond_nodes = visit(ctx.cond());
+         List<Node> result = new ArrayList<>();
+         // TODO : Figure out what to return here
+    }
+
+    @Override
+    public List<Node> visitXQueryParen(XQueryGrammarParser.XQueryParenContext ctx) {
+        return visit(ctx.cond());
+    }
+
+    @Override
+    public List<Node> visitXQueryEmpty(XQueryGrammarParser.XQueryEmptyContext ctx) {
+        List<Node> cond_nodes = visit(ctx.xq());
+        // TODO : Figure out logic
+    }
+
+    @Override
+    public List<Node> visitWhereClause(XQueryGrammarParser.WhereClauseContext ctx) {
+        return visit(ctx.cond());
+    }
+
+    @Override
+    public List<Node> visitReturnClause(XQueryGrammarParser.ReturnClauseContext ctx) {
+        return visit(ctx.xq());
+    }
+
+    @Override
+    public List<Node> visitXQueryEqual(XQueryGrammarParser.XQueryEqualContext ctx) {
+        List<Node> currentList = currentNodes;
+        List<Node> left_xq = visit(ctx.xq(0));
+        currentNodes = currentList;
+        List<Node> right_xq = visit(ctx.xq(0));
+        currentNodes = currentList;
+
+        List<Node> result = new ArrayList<>();
+
+        for (Node n : left_xq) {
+            for (Node n1 : right_xq) {
+                // TODO : Fill in the logic here
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public List<Node> visitXQueryIs(XQueryGrammarParser.XQueryIsContext ctx) {
+        List<Node> currentList = currentNodes;
+        List<Node> left_xq = visit(ctx.xq(0));
+        currentNodes = currentList;
+        List<Node> right_xq = visit(ctx.xq(0));
+        currentNodes = currentList;
+
+        List<Node> result = new ArrayList<>();
+
+        for (Node n : left_xq) {
+            for (Node n1 : right_xq) {
+                // TODO : Fill in the logic here
+            }
+        }
+
+        return result;
+    }
+
+
 
     // XPath methods from here on
 
