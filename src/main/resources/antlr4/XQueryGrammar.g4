@@ -15,7 +15,7 @@ xq
 	;
 
 var
-	: '$' NAME
+	: DOLLAR NAME
 	;
 
 forClause
@@ -39,8 +39,8 @@ cond
 	| xq EQ xq 											            # XQueryEqual
 	| xq DBLEQUAL xq 											    # XQueryIs
 	| xq IS xq 											            # XQueryIs
-	| 'empty' LPR xq RPR 		 							        # XQueryEmpty
-	| 'some' var 'in' xq (',' var 'in' xq)* 'satisfies' cond        # XQuerySome
+	| EMPTY LPR xq RPR 		 							            # XQueryEmpty
+	| SOME var IN xq (',' var IN xq)* SATISFY cond                  # XQuerySome
 	| LPR cond RPR 											        # XQueryParen
 	| cond AND cond 										        # XQueryAnd
 	| cond OR cond 										            # XQueryOr
@@ -64,6 +64,15 @@ STRING
    )* '\''
 ;
 
+ESCAPE
+:
+   '\\'
+   (
+      ['"\\]
+   )
+
+;
+
 
 LPR : '(';
 RPR : ')';
@@ -71,6 +80,11 @@ CURLYLB : '{';
 CURLYRB : '}';
 ANGULARLB : '<';
 ANGULARRB : '>';
+DOLLAR : '$';
+EMPTY : 'empty';
+SOME : 'some';
+IN : 'in';
+SATISFY : 'satisfies';
 
 SINGLESLASH : '/';
 DOUBLEBACKSLASH : '//';
@@ -83,3 +97,5 @@ COMMA : ',';
 AND : 'and';
 OR : 'or';
 NOT : 'not';
+
+IDENTIFIER : [a-zA-Z0-9_]+;
