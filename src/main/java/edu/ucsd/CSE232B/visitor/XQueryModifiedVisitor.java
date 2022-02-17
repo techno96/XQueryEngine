@@ -24,20 +24,18 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     public Document doc = null;
 
     @Override
-    public List<Node> visitXQueryConstructor(XQueryGrammarParser.XQueryConstructorContext ctx) {
-        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = null;
-        try {
-            builder = factory.newDocumentBuilder();
-        } catch (ParserConfigurationException exception) {
-            exception.printStackTrace();
-        }
-        output = builder.newDocument();
-        final List<Node> xqNodes = visit(ctx.xq());
-        //print results
+    public List<Node> visitXQueryVariable(XQueryGrammarParser.XQueryVariableContext ctx) {
+        return ctxMap.get(ctx.getText());
+    }
 
-        //double check reference
-        return new ArrayList<>(Arrays.asList(createElement(ctx.NAME(0).getText(), xqNodes)));
+    @Override
+    public List<Node> visitXQueryStringConstant(XQueryGrammarParser.XQueryStringConstantContext ctx) {
+        return Arrays.asList(doc.createTextNode(ctx.StringConstant().getText()));
+    }
+
+    @Override
+    public List<Node> visitXQueryAP(XQueryGrammarParser.XQueryAPContext ctx) {
+        return visit(ctx.ap());
     }
 
     @Override
@@ -61,6 +59,23 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     public List<Node> visitXQuerydescen_rp(XQueryGrammarParser.XQuerydescen_rpContext ctx) {
         currentNodes = visit(ctx.xq());
         return visit(ctx.rp());
+    }
+
+    @Override
+    public List<Node> visitXQueryConstructor(XQueryGrammarParser.XQueryConstructorContext ctx) {
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = null;
+        try {
+            builder = factory.newDocumentBuilder();
+        } catch (ParserConfigurationException exception) {
+            exception.printStackTrace();
+        }
+        output = builder.newDocument();
+        final List<Node> xqNodes = visit(ctx.xq());
+        //print results
+
+        //double check reference
+        return new ArrayList<>(Arrays.asList(createElement(ctx.NAME(0).getText(), xqNodes)));
     }
 
     @Override
