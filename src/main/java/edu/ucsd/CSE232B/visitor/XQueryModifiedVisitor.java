@@ -9,14 +9,18 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> {
 
     Document output = null;
     List<Node> currentNodes = new ArrayList<>();
+
+    // Maps identifier to list of results
+    HashMap<String, List<Node>> ctxMap = new HashMap<>();
+    // Stack which maintains the order of traversal
+    Stack<HashMap<String, List<Node>>> ctxStack = new Stack<>();
+
     public Document doc = null;
 
     @Override
@@ -62,16 +66,13 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitXQueryOr(XQueryGrammarParser.XQueryOrContext ctx) {
         List<Node> left_xq = visit(ctx.cond(0));
-        if (!left_xq.isEmpty()) {
+        List<Node> right_xq = visit(ctx.cond(1));
+
+        if (left_xq.isEmpty()) {
+            return right_xq;
+        } else {
             return left_xq;
         }
-
-        List<Node> right_xq = visit(ctx.cond(1));
-        if (!right_xq.isEmpty()) {
-            return right_xq;
-        }
-
-        return new ArrayList<>();
     }
 
     @Override
@@ -88,8 +89,12 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitXQueryNot(XQueryGrammarParser.XQueryNotContext ctx) {
          List<Node> cond_nodes = visit(ctx.cond());
-         List<Node> result = new ArrayList<>();
-         // TODO : Figure out what to return here
+         if (!cond_nodes.isEmpty()) {
+             return new ArrayList<>();
+         }
+
+         Node newNode = doc.createElement("newNode");
+         return Arrays.asList(newNode);
     }
 
     @Override
@@ -100,7 +105,13 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitXQueryEmpty(XQueryGrammarParser.XQueryEmptyContext ctx) {
         List<Node> cond_nodes = visit(ctx.xq());
-        // TODO : Figure out logic
+        if (!cond_nodes.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        Node newNode = doc.createElement("newNode");
+        return Arrays.asList(newNode);
+
     }
 
     @Override
@@ -125,7 +136,10 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
         for (Node n : left_xq) {
             for (Node n1 : right_xq) {
-                // TODO : Fill in the logic here
+                if (n.isEqualNode(n1)) {
+                    result.add(n);
+                    return result;
+                }
             }
         }
 
@@ -144,13 +158,15 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
         for (Node n : left_xq) {
             for (Node n1 : right_xq) {
-                // TODO : Fill in the logic here
+                if (n.isSameNode(n1)) {
+                    result.add(n);
+                    return result;
+                }
             }
         }
 
         return result;
     }
-
 
 
     // XPath methods from here on
