@@ -79,6 +79,72 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     }
 
     @Override
+    public List<Node> visitXQueryLet(XQueryGrammarParser.XQueryLetContext ctx) {
+        HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
+        ctxStack.push(originalMap);
+        List<Node> result = visit(ctx.xq());
+        // TODO : What is the difference between ctxStack.pop() and originalMap ?
+        ctxMap = ctxStack.pop();
+        return result;
+    }
+
+    private List<Node> constructItems(int depth, XQueryGrammarParser.ForClauseContext ctx) {
+        List<Node> initial_xq_list = visit(ctx.xq(depth));
+        List<Node> result = new ArrayList<>();
+        if (ctx.xq().size() == 1) {
+            // for one variable in the for expression
+            for (Node n : initial_xq_list) {
+                ctxMap.put(ctx.var(depth).getText(), Arrays.asList(n));
+                result.add(n);
+            }
+        } else {
+            // for more than one variable in the for expression
+            for (Node n : initial_xq_list) {
+                HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
+                ctxStack.push(originalMap);
+                ctxMap.put(ctx.var(depth).getText(), Arrays.asList(n));
+                result.addAll(constructItems(depth + 1, ctx));
+                ctxMap = ctxStack.pop();
+            }
+        }
+        return result;
+    }
+
+    @Override
+    public List<Node> visitForClause(XQueryGrammarParser.ForClauseContext ctx) {
+        return constructItems(0, ctx);
+    }
+
+    // TODO : Check *Some* logic
+    @Override
+    public List<Node> visitXQuerySome(XQueryGrammarParser.XQuerySomeContext ctx) {
+        List<XQueryGrammarParser.VarContext> variables = ctx.var();
+        for (int i = 0; i < variables.size(); i++) {
+            ctxMap.put(variables.get(i).getText(), visit(ctx.xq(i)));
+        }
+        return visit(ctx.cond());
+    }
+
+    @Override
+    public List<Node> visitLetClause(XQueryGrammarParser.LetClauseContext ctx) {
+        List<XQueryGrammarParser.VarContext> variables = ctx.var();
+        for (int i = 0; i < variables.size(); i++) {
+           ctxMap.put(variables.get(i).getText(), visit(ctx.xq(i)));
+        }
+        return null;
+    }
+
+    @Override
+    public List<Node> visitWhereClause(XQueryGrammarParser.WhereClauseContext ctx) {
+        return visit(ctx.cond());
+    }
+
+    @Override
+    public List<Node> visitReturnClause(XQueryGrammarParser.ReturnClauseContext ctx) {
+        return visit(ctx.xq());
+    }
+
+    @Override
     public List<Node> visitXQueryOr(XQueryGrammarParser.XQueryOrContext ctx) {
         List<Node> left_xq = visit(ctx.cond(0));
         List<Node> right_xq = visit(ctx.cond(1));
@@ -127,16 +193,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         Node newNode = doc.createElement("newNode");
         return Arrays.asList(newNode);
 
-    }
-
-    @Override
-    public List<Node> visitWhereClause(XQueryGrammarParser.WhereClauseContext ctx) {
-        return visit(ctx.cond());
-    }
-
-    @Override
-    public List<Node> visitReturnClause(XQueryGrammarParser.ReturnClauseContext ctx) {
-        return visit(ctx.xq());
     }
 
     @Override

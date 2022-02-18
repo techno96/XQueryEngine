@@ -2,15 +2,15 @@ grammar XQueryGrammar;
 import XpathGrammar;
 
 xq
-	: var													                                            #XQueryVariable
+	: var													                                            # XQueryVariable
 	| stringConstant											                                        # XQueryStringConstant
 	| ap														                                        # XQueryAP
 	| LPR xq RPR												                                        # XQueryWithParan
 	| xq COMMA xq 											                                            # XQuerycomma
 	| xq SINGLESLASH rp											                                        # XQuerychild_rp
 	| xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rp
-	| ANGULARLB IDENTIFIER ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH IDENTIFIER ANGULARRB					# XQueryConstructor
-	| forClause letClause? whereClause? returnClause    		                                        #XQueryFLWR
+	| ANGULARLB IDENTIFIER ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH IDENTIFIER ANGULARRB		# XQueryConstructor
+	| forClause letClause? whereClause? returnClause    		                                        # XQueryFLWR
 	| letClause xq 												                                        # XQueryLet
 	;
 
