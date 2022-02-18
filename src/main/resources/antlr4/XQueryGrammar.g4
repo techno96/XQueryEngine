@@ -2,36 +2,37 @@ grammar XQueryGrammar;
 import XpathGrammar;
 
 xq
-	: var													                                            # XQueryVariable
-	| StringConstant											                                        # XQueryStringConstant
+	: var													                                            #XQueryVariable
+	| stringConstant											                                        # XQueryStringConstant
 	| ap														                                        # XQueryAP
 	| LPR xq RPR												                                        # XQueryWithParan
 	| xq COMMA xq 											                                            # XQuerycomma
 	| xq SINGLESLASH rp											                                        # XQuerychild_rp
 	| xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rp
-	| ANGULARLB NAME ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH NAME ANGULARRB					# XQueryConstructor
-	| forClause letClause? whereClause? returnClause    		                                        # XQueryFLWR
+	| ANGULARLB IDENTIFIER ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH IDENTIFIER ANGULARRB					# XQueryConstructor
+	| forClause letClause? whereClause? returnClause    		                                        #XQueryFLWR
 	| letClause xq 												                                        # XQueryLet
 	;
 
 var
-	: DOLLAR NAME
+	: DOLLAR IDENTIFIER
 	;
 
 forClause
-	: 'for' var 'in' xq (',' var 'in' xq)*
+	: FOR var IN xq (',' var IN xq)*
 	;
 
+
 letClause
-	: 'let' var ':=' xq (',' var ':=' xq)*
+	: LET var ':=' xq (',' var ':=' xq)*
 	;
 
 whereClause
-	: 'where' cond
+	: WHERE cond
 	;
 
 returnClause
-	: 'return' xq
+	: RETURN xq
 	;
 
 cond
@@ -47,35 +48,26 @@ cond
 	| NOT cond 											            # XQueryNot
 	;
 
-StringConstant: STRING;
-NAME: IDENTIFIER;
+stringConstant: STRING;
 
-STRING
+FOR:
+ F O R;
+
+fragment F
 :
-   '"'
-   (
-      ESCAPE
-      | ~["\\]
-   )* '"'
-   | '\''
-   (
-      ESCAPE
-      | ~['\\]
-   )* '\''
+  [fF]
 ;
 
-ESCAPE
+fragment O
 :
-   '\\'
-   (
-      ['"\\]
-   )
-
+  [oO]
 ;
 
+fragment R
+:
+  [rR]
+;
 
-LPR : '(';
-RPR : ')';
 CURLYLB : '{';
 CURLYRB : '}';
 ANGULARLB : '<';
@@ -85,17 +77,8 @@ EMPTY : 'empty';
 SOME : 'some';
 IN : 'in';
 SATISFY : 'satisfies';
+RETURN : 'return';
+WHERE : 'where';
+LET : 'let';
 
-SINGLESLASH : '/';
-DOUBLEBACKSLASH : '//';
 
-EQUAL : '=';
-EQ : 'eq';
-DBLEQUAL : '==';
-IS : 'is';
-COMMA : ',';
-AND : 'and';
-OR : 'or';
-NOT : 'not';
-
-IDENTIFIER : [a-zA-Z0-9_]+;
