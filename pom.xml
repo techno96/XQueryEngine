@@ -51,7 +51,7 @@
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
-                            <mainClass>edu.ucsd.CSE232B.Main</mainClass>
+                            <mainClass>edu.ucsd.CSE232B.XQueryMain</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -70,7 +70,7 @@
                             <archive>
                                 <manifest>
                                     <mainClass>
-                                        edu.ucsd.CSE232B.Main
+                                        edu.ucsd.CSE232B.XQueryMain
                                     </mainClass>
                                 </manifest>
                             </archive>

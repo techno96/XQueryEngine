@@ -2,34 +2,30 @@ package edu.ucsd.CSE232B;
 
 import edu.ucsd.CSE232B.parsers.XQueryGrammarLexer;
 import edu.ucsd.CSE232B.parsers.XQueryGrammarParser;
-import edu.ucsd.CSE232B.visitor.XpathModifiedVisitor;
+import edu.ucsd.CSE232B.visitor.XQueryModifiedVisitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-public class Main {
+public class XQueryMain {
     public static void main(String[] args) {
         final ANTLRInputStream input;
         try {
             //TODO : Replace with FileInputStream
-            input = new ANTLRInputStream(new FileInputStream(args[0]));
+            input = new ANTLRInputStream(new FileInputStream("/Users/subharamesh/IdeaProjects/CSE_232B/src/main/resources/queries.txt"));
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -38,31 +34,20 @@ public class Main {
         final CommonTokenStream tokens = new CommonTokenStream(lexer);
         final XQueryGrammarParser parser = new XQueryGrammarParser(tokens);
         final ParseTree tree = parser.xq();
-        final XpathModifiedVisitor visitor = new XpathModifiedVisitor();
+        final XQueryModifiedVisitor visitor = new XQueryModifiedVisitor();
 
-        //TODO : For each query in queries file, run this
         final List<Node> nodes = visitor.visit(tree);
+
         System.out.println(nodes.size());
         for (Node n : nodes) {
             System.out.println(n.getTextContent() + '\n');
         }
 
-        Document outputDoc = null;
-        try {
-            DocumentBuilderFactory docBF = DocumentBuilderFactory.newInstance();
-            DocumentBuilder docB = docBF.newDocumentBuilder();
-            outputDoc = docB.newDocument();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-            return;
-        }
-
-        List<Node> result = createElement(visitor.doc, "result", nodes);
-        writeNodesToFile(outputDoc, result, args[1]);
+        //writeNodesToFile(visitor.output, nodes, args[1]);
     }
 
     public static void writeNodesToFile(Document doc, List<Node> result, String filePath) {
-        Node newNode = doc.importNode(result.get(0), true);
+        Node newNode = doc.appendChild(result.get(0));
         doc.appendChild(newNode);
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
@@ -81,18 +66,5 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-    private static List<Node> createElement(Document doc, String tag, List<Node> nodes){
-        List<Node> results = new ArrayList<>();
-        Node finalNode = doc.createElement(tag);
-        for (Node n : nodes) {
-            if (n != null) {
-                Node newNode = doc.importNode(n, true);
-                finalNode.appendChild(newNode);
-            }
-        }
-        results.add(finalNode);
-        return results;
     }
 }

@@ -13,7 +13,7 @@ import java.util.*;
 
 public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> {
 
-    Document output = null;
+    public Document output = null;
     List<Node> currentNodes = new ArrayList<>();
 
     // Maps identifier to list of results
@@ -30,7 +30,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
     @Override
     public List<Node> visitXQueryStringConstant(XQueryGrammarParser.XQueryStringConstantContext ctx) {
-        return Arrays.asList(doc.createTextNode(ctx.StringConstant().getText()));
+        return Arrays.asList(doc.createTextNode(ctx.stringConstant().getText()));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         //print results
 
         //double check reference
-        return new ArrayList<>(Arrays.asList(createElement(ctx.NAME(0).getText(), xqNodes)));
+        return new ArrayList<>(Arrays.asList(createElement(ctx.IDENTIFIER(0).getText(), xqNodes)));
     }
 
     @Override
@@ -131,6 +131,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             }
             ctxMap = originalMap;
         } else {
+            // TODO : Should we use stack here as well ?
             String variable_name = ctx.forClause().var(depth).getText();
             List<Node> for_Nodes = visit(ctx.forClause().xq(depth));
             for (Node n : for_Nodes) {
