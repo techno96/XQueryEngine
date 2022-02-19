@@ -88,7 +88,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         return result;
     }
 
-    private List<Node> constructItems(int depth, XQueryGrammarParser.ForClauseContext ctx) {
+    private List<Node> constructItems(XQueryGrammarParser.ForClauseContext ctx, int depth) {
         List<Node> initial_xq_list = visit(ctx.xq(depth));
         List<Node> result = new ArrayList<>();
         if (ctx.xq().size() == 1) {
@@ -103,16 +103,59 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
                 HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
                 ctxStack.push(originalMap);
                 ctxMap.put(ctx.var(depth).getText(), Arrays.asList(n));
-                result.addAll(constructItems(depth + 1, ctx));
+                result.addAll(constructItems( ctx, depth + 1));
                 ctxMap = ctxStack.pop();
             }
         }
         return result;
     }
 
+    private void generateCombinations(XQueryGrammarParser.XQueryFLWRContext ctx, int depth, List<Node> result) {
+        // TODO : Check if amount amount of xq == var
+        if (ctx.forClause().var().size() == depth) {
+            HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
+            if (ctx.letClause() != null && !ctx.letClause().isEmpty()) {
+                visit(ctx.letClause());
+            }
+
+            if (ctx.whereClause() != null && !ctx.whereClause().isEmpty()) {
+                List<Node> where_Nodes = visit(ctx.whereClause());
+                if (where_Nodes == null || where_Nodes.isEmpty()) {
+                    return;
+                }
+            }
+
+            List<Node> returnList = visit(ctx.returnClause());
+            if (returnList != null && !returnList.isEmpty()) {
+                result.addAll(returnList);
+            }
+            ctxMap = originalMap;
+        } else {
+            String variable_name = ctx.forClause().var(depth).getText();
+            List<Node> for_Nodes = visit(ctx.forClause().xq(depth));
+            for (Node n : for_Nodes) {
+                ctxMap.remove(variable_name);
+                List<Node> singleList = Arrays.asList(n);
+                ctxMap.put(variable_name, singleList);
+                generateCombinations(ctx, depth + 1, result);
+            }
+
+        }
+    }
+
+    @Override
+    public List<Node> visitXQueryFLWR(XQueryGrammarParser.XQueryFLWRContext ctx) {
+        HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
+        ctxStack.push(originalMap);
+        List<Node> result = new ArrayList<>();
+        generateCombinations(ctx, 0, result);
+        ctxMap = ctxStack.pop();
+        return result;
+    }
+
     @Override
     public List<Node> visitForClause(XQueryGrammarParser.ForClauseContext ctx) {
-        return constructItems(0, ctx);
+        return constructItems(ctx, 0);
     }
 
     // TODO : Check *Some* logic
