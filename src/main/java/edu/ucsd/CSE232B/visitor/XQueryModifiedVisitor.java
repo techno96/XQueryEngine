@@ -30,7 +30,8 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
     @Override
     public List<Node> visitXQueryStringConstant(XQueryGrammarParser.XQueryStringConstantContext ctx) {
-        return Arrays.asList(doc.createTextNode(ctx.stringConstant().getText()));
+        String str = ctx.stringConstant().getText();
+        return Arrays.asList(doc.createTextNode(str.substring(1, str.length() - 1)));
     }
 
     @Override
@@ -74,10 +75,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         }
         output = builder.newDocument();
         final List<Node> xqNodes = visit(ctx.xq());
-        //print results
-
-        //double check reference
-
         return new ArrayList<>(Arrays.asList(createElement(ctx.IDENTIFIER(0).getText(), xqNodes)));
     }
 
@@ -201,13 +198,13 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         List<Node> left_xq = visit(ctx.cond(0));
         List<Node> right_xq = visit(ctx.cond(1));
 
-        if (left_xq.isEmpty()) {
-            return right_xq;
+        if (!left_xq.isEmpty() && !right_xq.isEmpty()) {
+            left_xq.addAll(right_xq);
+            return left_xq;
         } else if (right_xq.isEmpty()) {
             return left_xq;
         } else {
-            left_xq.addAll(right_xq);
-            return left_xq;
+            return right_xq;
         }
     }
 
