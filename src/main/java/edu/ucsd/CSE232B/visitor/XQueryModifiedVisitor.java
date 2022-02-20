@@ -52,12 +52,14 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
     @Override
     public List<Node> visitXQuerychild_rp(XQueryGrammarParser.XQuerychild_rpContext ctx) {
+        currentNodes = visit(ctx.xq());
         return visit(ctx.rp());
     }
 
     @Override
     public List<Node> visitXQuerydescen_rp(XQueryGrammarParser.XQuerydescen_rpContext ctx) {
         currentNodes = visit(ctx.xq());
+        currentNodes.addAll(getDescendants(currentNodes));
         return visit(ctx.rp());
     }
 
@@ -75,6 +77,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         //print results
 
         //double check reference
+
         return new ArrayList<>(Arrays.asList(createElement(ctx.IDENTIFIER(0).getText(), xqNodes)));
     }
 
@@ -82,7 +85,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     public List<Node> visitXQueryLet(XQueryGrammarParser.XQueryLetContext ctx) {
         HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
         ctxStack.push(originalMap);
-        List<Node> result = visit(ctx.xq());
+        List<Node> result = visitChildren(ctx);
         // TODO : What is the difference between ctxStack.pop() and originalMap ?
         ctxMap = ctxStack.pop();
         return result;
@@ -114,15 +117,17 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         // TODO : Check if amount amount of xq == var
         if (ctx.forClause().var().size() == depth) {
             HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
-            if (ctx.letClause() != null && !ctx.letClause().isEmpty()) {
+            if (ctx.letClause() != null) {
                 visit(ctx.letClause());
             }
 
-            if (ctx.whereClause() != null && !ctx.whereClause().isEmpty()) {
+            if (ctx.whereClause() != null) {
+                // TODO : What are we doing with these nodes ?
                 List<Node> where_Nodes = visit(ctx.whereClause());
                 if (where_Nodes == null || where_Nodes.isEmpty()) {
                     return;
                 }
+                //ctxMap.put(ctx.forClause().var(depth - 1).getText(), where_Nodes);
             }
 
             List<Node> returnList = visit(ctx.returnClause());
@@ -135,10 +140,13 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             String variable_name = ctx.forClause().var(depth).getText();
             List<Node> for_Nodes = visit(ctx.forClause().xq(depth));
             for (Node n : for_Nodes) {
+                HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
+                ctxStack.push(originalMap);
                 ctxMap.remove(variable_name);
                 List<Node> singleList = Arrays.asList(n);
                 ctxMap.put(variable_name, singleList);
                 generateCombinations(ctx, depth + 1, result);
+                ctxMap = ctxStack.pop();
             }
 
         }
@@ -195,7 +203,10 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
         if (left_xq.isEmpty()) {
             return right_xq;
+        } else if (right_xq.isEmpty()) {
+            return left_xq;
         } else {
+            left_xq.addAll(right_xq);
             return left_xq;
         }
     }
@@ -241,11 +252,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
     @Override
     public List<Node> visitXQueryEqual(XQueryGrammarParser.XQueryEqualContext ctx) {
-        List<Node> currentList = currentNodes;
+        //TODO : Do we need to maintain current nodes here ?
         List<Node> left_xq = visit(ctx.xq(0));
-        currentNodes = currentList;
-        List<Node> right_xq = visit(ctx.xq(0));
-        currentNodes = currentList;
+        List<Node> right_xq = visit(ctx.xq(1));
 
         List<Node> result = new ArrayList<>();
 
@@ -266,7 +275,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         List<Node> currentList = currentNodes;
         List<Node> left_xq = visit(ctx.xq(0));
         currentNodes = currentList;
-        List<Node> right_xq = visit(ctx.xq(0));
+        List<Node> right_xq = visit(ctx.xq(1));
         currentNodes = currentList;
 
         List<Node> result = new ArrayList<>();
@@ -311,7 +320,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         } catch (ParserConfigurationException exception) {
             exception.printStackTrace();
         }
-        Document doc = null;
         try {
             if (builder != null) {
                 doc = builder.parse(inputXMLFile);
@@ -324,7 +332,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         }
         List<Node> resultList = new ArrayList<>();
         resultList.add(doc);
-        this.doc = doc;
         currentNodes = resultList;
         return resultList;
     }
@@ -460,11 +467,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         List<Node> resultList = new ArrayList<>();
 
         for (Node n : rpResult) {
-            if (n.getFirstChild() != null) {
-                String data = n.getFirstChild().getTextContent();
-                if (compareString.equals(data)) {
-                    resultList.add(n);
-                }
+            String data = n.getTextContent();
+            if (compareString.equals(data)) {
+                resultList.add(n);
             }
         }
 
@@ -473,7 +478,17 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
     @Override
     public List<Node> visitText_rp(XQueryGrammarParser.Text_rpContext ctx) {
-        return currentNodes;
+        List<Node> textNodes = new ArrayList<>();
+        for (Node n : currentNodes) {
+            List<Node> children = getChildren(Arrays.asList(n));
+            for (Node child : children) {
+                if (child.getNodeType() == Node.TEXT_NODE){
+                    textNodes.add(child);
+                }
+            }
+        }
+        currentNodes = textNodes;
+        return textNodes;
     }
 
     @Override

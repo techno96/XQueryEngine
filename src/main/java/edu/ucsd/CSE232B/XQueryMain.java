@@ -43,12 +43,11 @@ public class XQueryMain {
             System.out.println(n.getTextContent() + '\n');
         }
 
-        //writeNodesToFile(visitor.output, nodes, args[1]);
+        writeNodesToFile(visitor.output, nodes, "/Users/subharamesh/IdeaProjects/CSE_232B/src/main/resources/XQSample1.txt");
     }
 
     public static void writeNodesToFile(Document doc, List<Node> result, String filePath) {
-        Node newNode = doc.appendChild(result.get(0));
-        doc.appendChild(newNode);
+        doc.appendChild(result.get(0));
         try {
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
