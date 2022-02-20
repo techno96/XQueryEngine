@@ -31,7 +31,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitXQueryStringConstant(XQueryGrammarParser.XQueryStringConstantContext ctx) {
         String str = ctx.stringConstant().getText();
-        return Arrays.asList(doc.createTextNode(str.substring(1, str.length() - 1)));
+        List<Node> resultList = new ArrayList<>();
+        resultList.add(doc.createTextNode(str.substring(1, str.length() - 1)));
+        return resultList;
     }
 
     @Override
@@ -75,7 +77,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         }
         output = builder.newDocument();
         final List<Node> xqNodes = visit(ctx.xq());
-        return new ArrayList<>(Arrays.asList(createElement(ctx.IDENTIFIER(0).getText(), xqNodes)));
+        List<Node> resultList = new ArrayList<>();
+        resultList.add(createElement(ctx.IDENTIFIER(0).getText(), xqNodes));
+        return resultList;
     }
 
     @Override
@@ -94,7 +98,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         if (ctx.xq().size() == 1) {
             // for one variable in the for expression
             for (Node n : initial_xq_list) {
-                ctxMap.put(ctx.var(depth).getText(), Arrays.asList(n));
+                List<Node> tempList = new ArrayList<>();
+                tempList.add(n);
+                ctxMap.put(ctx.var(depth).getText(), tempList);
                 result.add(n);
             }
         } else {
@@ -102,7 +108,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             for (Node n : initial_xq_list) {
                 HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
                 ctxStack.push(originalMap);
-                ctxMap.put(ctx.var(depth).getText(), Arrays.asList(n));
+                List<Node> tempList = new ArrayList<>();
+                tempList.add(n);
+                ctxMap.put(ctx.var(depth).getText(), tempList);
                 result.addAll(constructItems( ctx, depth + 1));
                 ctxMap = ctxStack.pop();
             }
@@ -140,7 +148,8 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
                 HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
                 ctxStack.push(originalMap);
                 ctxMap.remove(variable_name);
-                List<Node> singleList = Arrays.asList(n);
+                List<Node> singleList = new ArrayList<>();
+                singleList.add(n);
                 ctxMap.put(variable_name, singleList);
                 generateCombinations(ctx, depth + 1, result);
                 ctxMap = ctxStack.pop();
@@ -226,8 +235,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
              return new ArrayList<>();
          }
 
-         Node newNode = doc.createElement("newNode");
-         return Arrays.asList(newNode);
+         List<Node> resultList = new ArrayList<>();
+         resultList.add(doc.createElement("newNode"));
+         return resultList;
     }
 
     @Override
@@ -242,8 +252,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             return new ArrayList<>();
         }
 
-        Node newNode = doc.createElement("newNode");
-        return Arrays.asList(newNode);
+        List<Node> resultList = new ArrayList<>();
+        resultList.add(doc.createElement("newNode"));
+        return resultList;
 
     }
 
@@ -477,7 +488,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     public List<Node> visitText_rp(XQueryGrammarParser.Text_rpContext ctx) {
         List<Node> textNodes = new ArrayList<>();
         for (Node n : currentNodes) {
-            List<Node> children = getChildren(Arrays.asList(n));
+            List<Node> parent = new ArrayList<>();
+            parent.add(n);
+            List<Node> children = getChildren(parent);
             for (Node child : children) {
                 if (child.getNodeType() == Node.TEXT_NODE){
                     textNodes.add(child);
