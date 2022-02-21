@@ -25,7 +25,7 @@ public class XQueryMain {
         final ANTLRInputStream input;
         try {
             //TODO : Replace with FileInputStream
-            input = new ANTLRInputStream(new FileInputStream("/Users/subharamesh/IdeaProjects/CSE_232B/src/main/resources/queries.txt"));
+            input = new ANTLRInputStream(new FileInputStream(args[0]));
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -43,14 +43,13 @@ public class XQueryMain {
             System.out.println(n.getTextContent() + '\n');
         }
 
-        writeNodesToFile(visitor.output, nodes, "/Users/subharamesh/IdeaProjects/CSE_232B/src/main/resources/XQSample1.txt");
+        writeNodesToFile(visitor.output, nodes, args[1]);
     }
 
     public static void writeNodesToFile(Document doc, List<Node> result, String filePath) {
         doc.appendChild(result.get(0));
         try {
-            TransformerFactory factory = TransformerFactory.newInstance();
-            Transformer transformer = factory.newTransformer();
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
 
             transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");

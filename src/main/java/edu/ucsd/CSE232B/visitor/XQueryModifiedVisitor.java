@@ -122,7 +122,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     }
 
     private void generateCombinations(XQueryGrammarParser.XQueryFLWRContext ctx, int depth, List<Node> result) {
-        // TODO : Check if amount amount of xq == var
+        // TODO : Check if amount of xq == var
         if (ctx.forClause().var().size() == depth) {
             HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
             if (ctx.letClause() != null) {
@@ -130,7 +130,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             }
 
             if (ctx.whereClause() != null) {
-                // TODO : What are we doing with these nodes ?
                 List<Node> where_Nodes = visit(ctx.whereClause());
                 if (where_Nodes == null || where_Nodes.isEmpty()) {
                     return;
@@ -144,7 +143,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             }
             ctxMap = originalMap;
         } else {
-            // TODO : Should we use stack here as well ?
             String variable_name = ctx.forClause().var(depth).getText();
             List<Node> for_Nodes = visit(ctx.forClause().xq(depth));
 
