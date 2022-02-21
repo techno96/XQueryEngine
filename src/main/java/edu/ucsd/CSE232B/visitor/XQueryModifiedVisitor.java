@@ -63,7 +63,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitXQuerydescen_rp(XQueryGrammarParser.XQuerydescen_rpContext ctx) {
         currentNodes = visit(ctx.xq());
-        currentNodes.addAll(getDescendants(currentNodes));
+        List<Node> nodes = getDescendants(currentNodes);
+        nodes.addAll(currentNodes);
+        currentNodes = nodes;
         return visit(ctx.rp());
     }
 
@@ -133,7 +135,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
                 if (where_Nodes == null || where_Nodes.isEmpty()) {
                     return;
                 }
-                //ctxMap.put(ctx.forClause().var(depth - 1).getText(), where_Nodes);
+
             }
 
             List<Node> returnList = visit(ctx.returnClause());
@@ -145,11 +147,13 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             // TODO : Should we use stack here as well ?
             String variable_name = ctx.forClause().var(depth).getText();
             List<Node> for_Nodes = visit(ctx.forClause().xq(depth));
+
             for (Node n : for_Nodes) {
                 HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
                 ctxStack.push(originalMap);
                 List<Node> singleList = new ArrayList<>();
                 singleList.add(n);
+
                 ctxMap.put(variable_name, singleList);
                 generateCombinations(ctx, depth + 1, result);
                 ctxMap = ctxStack.pop();
@@ -319,7 +323,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitDescendant(XQueryGrammarParser.DescendantContext ctx) {
         visit(ctx.doc());
-        currentNodes.addAll(getDescendants(currentNodes));
+        List<Node> nodes = getDescendants(currentNodes);
+        nodes.addAll(currentNodes);
+        currentNodes = nodes;
         return visit(ctx.rp());
     }
 
@@ -397,7 +403,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitDescen_rp(XQueryGrammarParser.Descen_rpContext ctx) {
         visit(ctx.rp(0));
-        currentNodes.addAll(getDescendants(currentNodes));
+        List<Node> nodes = getDescendants(currentNodes);
+        nodes.addAll(currentNodes);
+        currentNodes = nodes;
         return visit(ctx.rp(1));
     }
 
