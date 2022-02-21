@@ -99,9 +99,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         if (ctx.xq().size() == 1) {
             // for one variable in the for expression
             for (Node n : initial_xq_list) {
-                List<Node> tempList = new ArrayList<>();
-                tempList.add(n);
-                ctxMap.put(ctx.var(depth).getText(), tempList);
+                List<Node> singleList = new ArrayList<>();
+                singleList.add(n);
+                ctxMap.put(ctx.var(depth).getText(), singleList);
                 result.add(n);
             }
         } else {
@@ -109,9 +109,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             for (Node n : initial_xq_list) {
                 HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
                 ctxStack.push(originalMap);
-                List<Node> tempList = new ArrayList<>();
-                tempList.add(n);
-                ctxMap.put(ctx.var(depth).getText(), tempList);
+                List<Node> singleList = new ArrayList<>();
+                singleList.add(n);
+                ctxMap.put(ctx.var(depth).getText(), singleList);
                 result.addAll(constructItems( ctx, depth + 1));
                 ctxMap = ctxStack.pop();
             }
@@ -148,7 +148,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             for (Node n : for_Nodes) {
                 HashMap<String, List<Node>> originalMap = new HashMap<>(ctxMap);
                 ctxStack.push(originalMap);
-                ctxMap.remove(variable_name);
                 List<Node> singleList = new ArrayList<>();
                 singleList.add(n);
                 ctxMap.put(variable_name, singleList);
@@ -189,7 +188,8 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     public List<Node> visitLetClause(XQueryGrammarParser.LetClauseContext ctx) {
         List<XQueryGrammarParser.VarContext> variables = ctx.var();
         for (int i = 0; i < variables.size(); i++) {
-           ctxMap.put(variables.get(i).getText(), visit(ctx.xq(i)));
+            List<Node> xqNodes = visit(ctx.xq(i));
+            ctxMap.put(variables.get(i).getText(), xqNodes);
         }
         return null;
     }
