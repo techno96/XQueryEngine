@@ -49,7 +49,8 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     @Override
     public List<Node> visitXQuerycomma(XQueryGrammarParser.XQuerycommaContext ctx) {
         List<Node> result = visit(ctx.xq(0));
-        result.addAll(visit(ctx.xq(1)));
+        List<Node> temp = visit(ctx.xq(1));
+        result.addAll(temp);
         return result;
     }
 
@@ -173,12 +174,13 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         return constructItems(ctx, 0);
     }
 
-    // TODO : Check *Some* logic
+
     @Override
     public List<Node> visitXQuerySome(XQueryGrammarParser.XQuerySomeContext ctx) {
         List<XQueryGrammarParser.VarContext> variables = ctx.var();
         for (int i = 0; i < variables.size(); i++) {
-            ctxMap.put(variables.get(i).getText(), visit(ctx.xq(i)));
+            List<Node> xqNodes = visit(ctx.xq(i));
+            ctxMap.put(variables.get(i).getText(), xqNodes);
         }
         return visit(ctx.cond());
     }
@@ -265,6 +267,10 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         List<Node> right_xq = visit(ctx.xq(1));
 
         List<Node> result = new ArrayList<>();
+
+        if (left_xq == null || right_xq == null) {
+            return new ArrayList<>();
+        }
 
         for (Node n : left_xq) {
             for (Node n1 : right_xq) {
