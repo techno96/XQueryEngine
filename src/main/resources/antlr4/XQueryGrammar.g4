@@ -12,6 +12,7 @@ xq
 	| ANGULARLB IDENTIFIER ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH IDENTIFIER ANGULARRB		# XQueryConstructor
 	| forClause letClause? whereClause? returnClause    		                                        # XQueryFLWR
 	| letClause xq 												                                        # XQueryLet
+	| joinClause                                                                                        # XQueryJoin
 	;
 
 var
@@ -22,6 +23,9 @@ forClause
 	: FOR var IN xq (',' var IN xq)*
 	;
 
+joinClause
+    : JOIN LPR xq COMMA xq COMMA attribute COMMA attribute RPR
+    ;
 
 letClause
 	: LET var ':=' xq (',' var ':=' xq)*
@@ -68,6 +72,9 @@ fragment R
   [rR]
 ;
 
+attribute : LSQREPR  IDENTIFIER (',' IDENTIFIER)* RSQREPR ;
+
+
 CURLYLB : '{';
 CURLYRB : '}';
 ANGULARLB : '<';
@@ -80,5 +87,6 @@ SATISFY : 'satisfies';
 RETURN : 'return';
 WHERE : 'where';
 LET : 'let';
+JOIN : 'join';
 
 
