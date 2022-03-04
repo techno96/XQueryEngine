@@ -230,7 +230,7 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
         // Step 3 : Check for no join equations
         if (left_attr.isEmpty() || right_attr.isEmpty()) {
-            // Fill in the logic here
+            return cartesianProduct(left_xq, right_xq);
         }
 
         // Step 4 : Find the smaller list
@@ -255,6 +255,24 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
         // Step 6 : Hash Join operation
         return performJoin(large_list, large_attr, joinMap);
+    }
+
+    private List<Node> cartesianProduct(List<Node> left_xq, List<Node> right_xq) {
+        List<Node> result = new ArrayList<>();
+        for (Node n : left_xq) {
+            for (Node n1 : right_xq) {
+                Node tuple = doc.createElement("tuple");
+                List<Node> parents = new ArrayList<>();
+                parents.add(n);
+                parents.add(n1);
+                List<Node> children = getChildren(parents);
+                for (Node child : children) {
+                    tuple.appendChild(doc.importNode(child, true));
+                }
+                result.add(tuple);
+            }
+        }
+        return result;
     }
 
     private List<Node> performJoin(List<Node> large_list, List<String> large_attr, HashMap<String, List<Node>> joinMap) {
