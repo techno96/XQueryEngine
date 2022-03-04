@@ -2,8 +2,11 @@ package edu.ucsd.CSE232B.visitor;
 
 import edu.ucsd.CSE232B.parsers.XQueryGrammarBaseVisitor;
 import edu.ucsd.CSE232B.parsers.XQueryGrammarParser;
+import org.antlr.v4.runtime.tree.TerminalNode;
 import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -175,7 +178,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         return constructItems(ctx, 0);
     }
 
-
     @Override
     public List<Node> visitXQuerySome(XQueryGrammarParser.XQuerySomeContext ctx) {
         List<XQueryGrammarParser.VarContext> variables = ctx.var();
@@ -205,6 +207,119 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     public List<Node> visitReturnClause(XQueryGrammarParser.ReturnClauseContext ctx) {
         return visit(ctx.xq());
     }
+
+    @Override
+    public List<Node> visitXQueryJoin(XQueryGrammarParser.XQueryJoinContext ctx) {
+        return visit(ctx.joinClause());
+    }
+
+    @Override
+    public List<Node> visitJoinClause(XQueryGrammarParser.JoinClauseContext ctx) {
+        HashMap<String, List<Node>> joinMap = new HashMap<>();
+
+        // Step 1 : Call XQueries
+        List<Node> currentList = currentNodes;
+        List<Node> left_xq = new ArrayList<Node>(visit(ctx.xq(0)));
+        currentNodes = currentList;
+        List<Node> right_xq = new ArrayList<Node>(visit(ctx.xq(1)));
+        currentNodes = currentList;
+
+        // Step 2 :  Transform attributes
+        List<String> left_attr = convertAttrs(ctx.attribute(0));
+        List<String> right_attr = convertAttrs(ctx.attribute(1));
+
+        // Step 3 : Check for no join equations
+        if (left_attr.isEmpty() || right_attr.isEmpty()) {
+            // Fill in the logic here
+        }
+
+        // Step 4 : Find the smaller list
+        // We are storing the smaller list for faster indexing
+        // and to reduce the space consumption in memory
+        List<Node> small_list = left_xq.size() > right_xq.size() ? right_xq : left_xq;
+        List<Node> large_list = left_xq.size() > right_xq.size() ? left_xq : right_xq;
+        List<String> small_attr = left_xq.size() > right_xq.size() ? right_attr : left_attr;
+        List<String> large_attr = left_xq.size() > right_xq.size() ? left_attr : right_attr;
+
+
+        // Step 5 : Store the smaller list into a hash map
+        for (Node node : small_list) {
+            String attr = convertKey(createJoinKey(node, small_attr));
+            List<Node> valueNodes = new ArrayList<>();
+            if (joinMap.containsKey(attr)) {
+                valueNodes = joinMap.get(attr);
+            }
+            valueNodes.add(node);
+            joinMap.put(attr, valueNodes);
+        }
+
+        // Step 6 : Hash Join operation
+        return performJoin(large_list, large_attr, joinMap);
+    }
+
+    private List<Node> performJoin(List<Node> large_list, List<String> large_attr, HashMap<String, List<Node>> joinMap) {
+        List<Node> result = new ArrayList<>();
+        for (Node large_node : large_list) {
+            String attr = convertKey(createJoinKey(large_node, large_attr));
+            if (joinMap.containsKey(attr)) {
+                for (Node small_node : joinMap.get(attr)) {
+                    Node tuple = doc.createElement("tuple");
+                    List<Node> parents = new ArrayList<>();
+                    parents.add(small_node);
+                    parents.add(large_node);
+                    List<Node> children = getChildren(parents);
+                    for (Node child : children) {
+                        tuple.appendChild(doc.importNode(child, true));
+                    }
+                    result.add(tuple);
+                }
+            }
+        }
+        return result;
+    }
+
+
+    private Node createJoinKey(Node parent, List<String> attrs) {
+        Node keyNode = doc.createElement("keyNode");
+        NodeList children = parent.getChildNodes();
+        for (String attr : attrs) {
+            for (int i = 0; i < children.getLength(); i++) {
+                if (children.item(i).getNodeType() == Node.ELEMENT_NODE && children.item(i).getNodeName().equals(attr)) {
+                    Node root = doc.createElement("root");
+                    NodeList second_level = children.item(i).getChildNodes();
+                    for(int j = 0; j < second_level.getLength(); j++){
+                        root.appendChild(doc.importNode(second_level.item(j), true));
+                    }
+                    keyNode.appendChild(root);
+                }
+            }
+        }
+
+        return keyNode;
+    }
+
+    private String convertKey(Node key) {
+        //TODO : What will happen if we add node name before check ?
+        String result = "";
+        NodeList children = key.getChildNodes();
+        if (children.getLength() != 0) {
+            result += key.getNodeName() + key.getTextContent();
+            for (int i = 0; i < children.getLength(); i++){
+                result = result + convertKey(children.item(i));
+            }
+        }
+        return result;
+    }
+
+
+    private List<String> convertAttrs(XQueryGrammarParser.AttributeContext attrCtx) {
+        List<String> att_result = new ArrayList<>();
+        for (TerminalNode node : attrCtx.IDENTIFIER()) {
+            att_result.add(node.getText());
+        }
+        return att_result;
+    }
+
 
     @Override
     public List<Node> visitXQueryOr(XQueryGrammarParser.XQueryOrContext ctx) {
