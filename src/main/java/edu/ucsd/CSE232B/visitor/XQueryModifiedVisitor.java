@@ -261,15 +261,15 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         List<Node> result = new ArrayList<>();
         for (Node n : left_xq) {
             for (Node n1 : right_xq) {
-                Node tuple = doc.createElement("tuple");
+                Node entry = doc.createElement("entry");
                 List<Node> parents = new ArrayList<>();
                 parents.add(n);
                 parents.add(n1);
                 List<Node> children = getChildren(parents);
                 for (Node child : children) {
-                    tuple.appendChild(doc.importNode(child, true));
+                    entry.appendChild(doc.importNode(child, true));
                 }
-                result.add(tuple);
+                result.add(entry);
             }
         }
         return result;
@@ -281,15 +281,15 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
             String attr = convertKey(createJoinKey(large_node, large_attr));
             if (joinMap.containsKey(attr)) {
                 for (Node small_node : joinMap.get(attr)) {
-                    Node tuple = doc.createElement("tuple");
+                    Node entry = doc.createElement("entry");
                     List<Node> parents = new ArrayList<>();
                     parents.add(small_node);
                     parents.add(large_node);
                     List<Node> children = getChildren(parents);
                     for (Node child : children) {
-                        tuple.appendChild(doc.importNode(child, true));
+                        entry.appendChild(doc.importNode(child, true));
                     }
-                    result.add(tuple);
+                    result.add(entry);
                 }
             }
         }

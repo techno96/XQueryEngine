@@ -15,6 +15,9 @@ import java.util.List;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -64,12 +67,7 @@ public class XQueryMain {
 
         final List<Node> nodes = visitor.visit(tree);
 
-        System.out.println(nodes.size());
-        for (Node n : nodes) {
-            System.out.println(n.getTextContent() + '\n');
-        }
-
-        writeNodesToFile(visitor.output, nodes, outputFile);
+        writeNodesToFile(nodes, outputFile);
     }
 
     private static boolean analyzeJoin(String outputFile) {
@@ -95,8 +93,25 @@ public class XQueryMain {
         }
     }
 
-    public static void writeNodesToFile(Document doc, List<Node> result, String filePath) {
-        doc.appendChild(result.get(0));
+    public static void writeNodesToFile(List<Node> result, String filePath) {
+
+        Document outputDoc = null;
+        try {
+            DocumentBuilderFactory docBF = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docB = docBF.newDocumentBuilder();
+            outputDoc = docB.newDocument();
+        } catch (ParserConfigurationException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        Node element = outputDoc.createElement("element");
+        for(Node entry : result){
+            Node newNode = outputDoc.importNode(entry, true);
+            element.appendChild(newNode);
+        }
+        outputDoc.appendChild(element);
+
         try {
             Transformer transformer = TransformerFactory.newInstance().newTransformer();
 
@@ -104,7 +119,7 @@ public class XQueryMain {
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
 
-            DOMSource source = new DOMSource(doc);
+            DOMSource source = new DOMSource(element);
 
             StreamResult terminal = new StreamResult(System.out);
             StreamResult fileOutput = new StreamResult(filePath);
