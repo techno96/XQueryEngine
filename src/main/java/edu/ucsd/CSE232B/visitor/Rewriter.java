@@ -124,7 +124,7 @@ public class Rewriter {
     }
 
     public String printRewrittenQuery() {
-        if (variableTrees.size() < 1) {
+        if (variableTrees.size() < 2) {
             return "";
         }
 
@@ -150,7 +150,7 @@ public class Rewriter {
                 rightVars.append(pair.b.substring(1)).append(", ");
             }
 
-            if (leftVars.length() > 0){
+            if (leftVars.length() > 0) {
                 leftVars = new StringBuilder(leftVars.substring(0, leftVars.length() - 2));
                 rightVars = new StringBuilder(rightVars.substring(0, rightVars.length() - 2));
             }

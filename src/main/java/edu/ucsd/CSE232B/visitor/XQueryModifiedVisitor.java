@@ -254,7 +254,8 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
         }
 
         // Step 6 : Hash Join operation
-        return performJoin(large_list, large_attr, joinMap);
+        List<Node> nodes = performJoin(large_list, large_attr, joinMap);
+        return nodes;
     }
 
     private List<Node> cartesianProduct(List<Node> left_xq, List<Node> right_xq) {
