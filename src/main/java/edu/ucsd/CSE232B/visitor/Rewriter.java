@@ -11,6 +11,7 @@ public class Rewriter {
     HashMap<String, Integer> varTreeMap = new HashMap<>();
     String rewrittenQuery = "";
     HashMap<Pair<Integer, Integer>, ArrayList<Pair<String, String>>> joinConnection = new HashMap<>();
+    boolean containsOtherEntities = false;
 
     public class JoinTree {
         List<Pair<String, String>> varXqueryPair;
@@ -71,6 +72,8 @@ public class Rewriter {
             processWhereEqCondition(condition);
         } else if (condition instanceof XQueryGrammarParser.XQueryParenContext) {
             processWhereClause(((XQueryGrammarParser.XQueryParenContext) condition).cond());
+        } else {
+            containsOtherEntities = true;
         }
     }
 
@@ -91,7 +94,11 @@ public class Rewriter {
                 treeIndex = varTreeMap.get(right_eq);
             }
 
-            variableTrees.get(treeIndex).whereMapping.add(condition.getText());
+            if (condition.getText().contains("=")) {
+                variableTrees.get(treeIndex).whereMapping.add(condition.getText().replace("=", " = "));
+            } else {
+                variableTrees.get(treeIndex).whereMapping.add(condition.getText().replace("eq", " eq "));
+            }
         }
     }
 
@@ -126,7 +133,7 @@ public class Rewriter {
     }
 
     public String printRewrittenQuery() {
-        if (variableTrees.size() < 2) {
+        if (variableTrees.size() < 2 || containsOtherEntities) {
             return "";
         }
 
