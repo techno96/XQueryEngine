@@ -69,6 +69,8 @@ public class Rewriter {
             processWhereClause(andCtx.cond(1));
         } else if (condition instanceof XQueryGrammarParser.XQueryEqualContext) {
             processWhereEqCondition(condition);
+        } else if (condition instanceof XQueryGrammarParser.XQueryParenContext) {
+            processWhereClause(((XQueryGrammarParser.XQueryParenContext) condition).cond());
         }
     }
 

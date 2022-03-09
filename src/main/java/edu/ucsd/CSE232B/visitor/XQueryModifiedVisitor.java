@@ -716,9 +716,9 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
 
     public List<Node> getDescendants(List<Node> parents) {
         List<Node> descendants = new ArrayList<>();
-        for(Node n : parents) {
-            if(n.getChildNodes().getLength() != 0) {
-                for(int j = 0; j < n.getChildNodes().getLength(); j++) {
+        for (Node n : parents) {
+            if (n.getChildNodes().getLength() != 0) {
+                for (int j = 0; j < n.getChildNodes().getLength(); j++) {
                     descendants.addAll(getAllChildNodes(n.getChildNodes().item(j)));
                 }
             }
