@@ -2,13 +2,13 @@ grammar XQueryGrammar;
 import XpathGrammar;
 
 xq
-	: xq SINGLESLASH rp											                                        # XQuerychild_rp
-	| xq COMMA xq 											                                            # XQuerycomma
-	| xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rp
-	| LPR xq RPR												                                        # XQueryWithParan
-	| var													                                            # XQueryVariable
+	: var													                                            # XQueryVariable
 	| stringConstant											                                        # XQueryStringConstant
 	| ap														                                        # XQueryAP
+	| LPR xq RPR												                                        # XQueryWithParan
+	| xq SINGLESLASH rp											                                        # XQuerychild_rp
+    | xq DOUBLEBACKSLASH rp 									                                        # XQuerydescen_rp
+    | xq COMMA xq 											                                            # XQuerycomma
 	| ANGULARLB IDENTIFIER ANGULARRB CURLYLB xq CURLYRB ANGULARLB SINGLESLASH IDENTIFIER ANGULARRB		# XQueryConstructor
 	| forClause letClause? whereClause? returnClause    		                                        # XQueryFLWR
 	| letClause xq 												                                        # XQueryLet

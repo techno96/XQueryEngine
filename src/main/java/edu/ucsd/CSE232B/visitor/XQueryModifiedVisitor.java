@@ -4,7 +4,6 @@ import edu.ucsd.CSE232B.parsers.XQueryGrammarBaseVisitor;
 import edu.ucsd.CSE232B.parsers.XQueryGrammarParser;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
