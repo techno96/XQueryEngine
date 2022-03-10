@@ -75,15 +75,15 @@ public class XQueryMain {
         try {
             String rewrittenQuery = rewriter.printRewrittenQuery();
             if (rewrittenQuery.equals("")) {
-                System.out.println("Cannot rewrite using joins. Output is the same as original Query");
+                System.out.println("Cannot rewrite using joins. Output is the same as the original Query");
                 return false;
             } else {
-                File fileOutput = new File(outputFile);
-                FileOutputStream fos = new FileOutputStream(fileOutput);
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+                File file = new File(outputFile);
+                FileOutputStream outputStream = new FileOutputStream(file);
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(outputStream));
                 writer.write(rewrittenQuery);
                 writer.close();
-                System.out.println(rewrittenQuery);
+                System.out.println('\n' + rewrittenQuery);
                 return true;
             }
         } catch (Exception e) {

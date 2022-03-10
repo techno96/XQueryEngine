@@ -317,7 +317,6 @@ public class XQueryModifiedVisitor extends XQueryGrammarBaseVisitor<List<Node>> 
     }
 
     private String convertKey(Node key) {
-        //TODO : What will happen if we add node name before check ?
         String result = "";
         NodeList children = key.getChildNodes();
         if (children.getLength() != 0) {
